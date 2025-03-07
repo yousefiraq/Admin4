@@ -1,190 +1,141 @@
+/* تنسيقات عامة */
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #f8f9fa;
-}
-
-.container {
-    width: 50%;
-    margin: 50px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-input, button {
-    width: 90%;
-    padding: 10px;
-    margin: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-button {
-    background-color: #28a745;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #218838;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-}
-
-th {
-    background-color: #007bff;
-    color: white;
-}
-body {
-    background-image: url('background.jpg'); /* إضافة صورة خلفية */
-    background-size: cover;
+    font-family: 'Arial Arabic', Tahoma, sans-serif;
+    background-image: url('assets/background.jpg'), linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+    background-size: cover, auto;
     background-position: center;
-    font-family: Arial, sans-serif;
+    transition: all 0.3s ease;
+    margin: 0;
+    padding: 0;
 }
 
 .header {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    background: linear-gradient(to right, #ce1126 33%, #fff 33%, #fff 66%, #000 66%);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 .header img {
-    height: 80px; /* ضبط حجم الشعار */
-    margin-right: 15px;
+    height: 100px;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
 }
 
-/* وضع داكن */
-body.dark-mode {
-    background-color: #121212;
-    color: #ffffff;
+.container {
+    width: 85%;
+    margin: 30px auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* جدول المستخدمين */
-#usersTable {
-    width: 90%; /* تكبير الجدول */
+/* الجداول */
+.animated-table {
+    width: 100%;
     border-collapse: collapse;
-    margin: 20px auto;
+    margin: 20px 0;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-#usersTable th, #usersTable td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
+.animated-table th,
+.animated-table td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    text-align: right;
 }
 
-#usersTable th {
-    background-color: #333;
+.animated-table th {
+    background: linear-gradient(45deg, #4b6cb7, #182848);
     color: white;
+    font-weight: bold;
 }
 
-/* تأثيرات احترافية */
+.animated-table tr:hover td {
+    background: rgba(75, 108, 183, 0.1);
+    transform: scale(1.01);
+    transition: 0.2s ease;
+}
+
+/* الأزرار والتأثيرات */
 .button {
-    background: linear-gradient(45deg, #ff6b6b, #556270);
+    background: linear-gradient(45deg, #009688, #004d40);
     color: white;
-    padding: 10px 15px;
+    padding: 12px 25px;
     border: none;
+    border-radius: 25px;
     cursor: pointer;
-    transition: 0.3s ease-in-out;
+    font-size: 16px;
+    transition: 0.3s;
+    margin: 10px;
 }
 
 .button:hover {
-    background: linear-gradient(45deg, #556270, #ff6b6b);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* خلفية مع العلم العراقي */
-body {
-    background-image: url('background.jpg'), url('iraq_flag.png');
-    background-size: cover, 150px;
-    background-position: center, top right;
-    background-repeat: no-repeat;
+.pulse {
+    animation: pulse 1.5s infinite;
 }
 
-
-/* خلفية تحتوي على العلم العراقي */
-body {
-    background: url('https://upload.wikimedia.org/wikipedia/commons/f/f6/Flag_of_Iraq.svg') no-repeat center center fixed;
-    background-size: cover;
-    transition: background 0.5s ease-in-out;
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
 }
 
-/* تأثيرات عند التحويل إلى الوضع الليلي */
-.dark-mode {
-    background: #121212 !important;
-    color: white !important;
+/* الوضع الداكن */
+body.dark-mode {
+    background-image: none;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
 }
 
-/* تحسين تصميم الجدول */
-table {
-    width: 95%;
-    margin: auto;
-    border-collapse: collapse;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+body.dark-mode .container {
+    background: rgba(40, 40, 40, 0.95);
 }
 
-th, td {
+body.dark-mode .animated-table th {
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+}
+
+/* حقول الإدخال */
+.input-field {
+    width: 90%;
     padding: 12px;
-    border: 1px solid #ddd;
-    text-align: center;
+    margin: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    transition: 0.3s;
 }
 
-th {
-    background: #444;
-    color: white;
+.input-field:focus {
+    border-color: #009688;
+    box-shadow: 0 0 8px rgba(0,150,136,0.3);
 }
 
-/* زر الوضع الليلي */
-.toggle-dark-mode {
+/* التنبيهات */
+.alert {
     position: fixed;
-    top: 10px;
-    right: 10px;
-    padding: 10px 20px;
-    background: black;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    z-index: 1000;
+}
+
+.alert.success {
+    background: #4CAF50;
     color: white;
-    border: none;
-    cursor: pointer;
-    transition: 0.3s;
 }
 
-.toggle-dark-mode:hover {
-    background: #333;
-}
-
-/* تأثيرات الأزرار */
-button {
-    padding: 8px 16px;
-    margin: 5px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-}
-
-button:hover {
-    transform: scale(1.1);
-}
-
-/* تحسين الإدخال */
-input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    margin: 5px;
-    transition: 0.3s;
-}
-
-input:focus {
-    border-color: #007bff;
-    box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
+.alert.error {
+    background: #f44336;
+    color: white;
 }

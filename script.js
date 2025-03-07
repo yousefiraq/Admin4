@@ -84,3 +84,81 @@ window.onload = function() {
         document.body.classList.add("dark-mode");
     }
 };
+
+
+// قائمة المستخدمين
+let users = [];
+
+// تحميل المستخدمين من localStorage
+function loadUsers() {
+    users = JSON.parse(localStorage.getItem("users")) || [];
+    renderUsers();
+}
+
+// تحديث الجدول بناءً على البيانات
+function renderUsers() {
+    let table = document.getElementById("userTable");
+    table.innerHTML = `
+        <tr>
+            <th>#</th>
+            <th>الاسم</th>
+            <th>البريد الإلكتروني</th>
+            <th>الإجراءات</th>
+        </tr>
+    `;
+    users.forEach((user, index) => {
+        let row = table.insertRow();
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.name}</td>
+            <td>${user.email}</td>
+            <td>
+                <button onclick="editUser(${index})">✏️ تعديل</button>
+                <button onclick="deleteUser(${index})">🗑 حذف</button>
+            </td>
+        `;
+    });
+}
+
+// إضافة مستخدم جديد
+function addUser() {
+    let name = document.getElementById("nameInput").value;
+    let email = document.getElementById("emailInput").value;
+
+    if (name && email) {
+        users.push({ name, email });
+        localStorage.setItem("users", JSON.stringify(users));
+        renderUsers();
+    } else {
+        alert("يرجى إدخال جميع البيانات!");
+    }
+}
+
+// تعديل مستخدم
+function editUser(index) {
+    let newName = prompt("أدخل الاسم الجديد:", users[index].name);
+    let newEmail = prompt("أدخل البريد الإلكتروني الجديد:", users[index].email);
+
+    if (newName && newEmail) {
+        users[index] = { name: newName, email: newEmail };
+        localStorage.setItem("users", JSON.stringify(users));
+        renderUsers();
+    }
+}
+
+// حذف مستخدم
+function deleteUser(index) {
+    if (confirm("هل أنت متأكد من حذف هذا المستخدم؟")) {
+        users.splice(index, 1);
+        localStorage.setItem("users", JSON.stringify(users));
+        renderUsers();
+    }
+}
+
+// تحميل البيانات عند فتح الصفحة
+window.onload = function() {
+    loadUsers();
+    if (localStorage.getItem("darkMode") === "enabled") {
+        document.body.classList.add("dark-mode");
+    }
+};

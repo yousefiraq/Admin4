@@ -1,57 +1,32 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة التوصيل</title>
+    <title>طلب غاز</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- مكتبة Google Maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfSqvra5NesDDhHlkqcPAJlLIFh3sGIx0&callback=initMap" async defer></script>
 </head>
 <body>
-    <div class="header">
-        <img src="assets/iraq_flag.png" alt="العلم العراقي">
-        <h1>نظام إدارة توصيل الغاز</h1>
-    </div>
-
-    <button id="darkModeToggle" class="button">🌓 الوضع الداكن</button>
-
     <div class="container">
-        <!-- قسم إدارة الطلبات -->
-        <h2>الطلبات المعلقة</h2>
-        <table class="animated-table">
-            <thead>
-                <tr>
-                    <th>الاسم</th>
-                    <th>الهاتف</th>
-                    <th>العنوان</th>
-                    <th>الحالة</th>
-                </tr>
-            </thead>
-            <tbody id="ordersTable"></tbody>
-        </table>
-
-        <!-- قسم إدارة المستخدمين -->
-        <h2 class="section-title">المستخدمين</h2>
-        <form id="userForm">
-            <input type="text" id="nameInput" placeholder="الاسم الكامل" class="input-field">
-            <input type="email" id="emailInput" placeholder="البريد الإلكتروني" class="input-field">
-            <button type="button" class="button pulse" onclick="addUser()">➕ إضافة مستخدم</button>
+        <h2>طلب توصيل الغاز</h2>
+        <form id="orderForm">
+            <input type="text" id="name" placeholder="الاسم" required>
+            <input type="text" id="phone" placeholder="رقم الهاتف" required>
+            <input type="text" id="address" placeholder="العنوان" required>
+            
+            <!-- زر تحديد الموقع وعناصر الخريطة -->
+            <button type="button" id="getLocation">📍 تحديد الموقع الحالي</button>
+            <div id="map" style="height: 300px; margin: 20px 0; display: none;"></div>
+            <input type="hidden" id="latitude">
+            <input type="hidden" id="longitude">
+            
+            <button type="submit">🚚 إرسال الطلب</button>
         </form>
-
-        <table id="usersTable" class="animated-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>الاسم</th>
-                    <th>البريد</th>
-                    <th>الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
     </div>
 
     <script src="firebase-config.js" type="module"></script>
-    <script src="orders.js" type="module"></script>
-    <script src="script.js"></script>
+    <script src="script.js" type="module"></script>
 </body>
 </html>

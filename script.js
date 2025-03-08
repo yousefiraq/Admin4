@@ -65,7 +65,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
             document.getElementById("map").style.display = "none";
         } catch (error) {
             console.error("⛔ خطأ في الإرسال:", error);
-            alert("⛔ فشل في إرسال الطلب!");
+            alert("⛔ فشل في إرسال الطلب: " + error.message); // عرض رسالة الخطأ
         }
     } else {
         alert("⚠️ يرجى ملء جميع الحقول وتحديد الموقع!");

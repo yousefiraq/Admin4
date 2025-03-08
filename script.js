@@ -1,4 +1,5 @@
 import { db, collection, addDoc } from "./firebase-config.js";
+import { GeoPoint } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // ---------- تحديد الموقع الجغرافي ----------
 document.getElementById("getLocation").addEventListener("click", function() {
@@ -52,7 +53,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
                 name, 
                 phone, 
                 address, 
-                location: new firebase.firestore.GeoPoint(
+                location: new GeoPoint(
                     parseFloat(latitude),
                     parseFloat(longitude)
                 ),
@@ -69,19 +70,4 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     } else {
         alert("⚠️ يرجى ملء جميع الحقول وتحديد الموقع!");
     }
-});
-
-// ---------- الوضع الداكن ----------
-document.getElementById("darkModeToggle").addEventListener("click", function() {
-    document.body.classList.toggle("dark-mode");
-});
-
-// ---------- تأثيرات الأزرار ----------
-document.querySelectorAll("button").forEach(button => {
-    button.addEventListener("click", function() {
-        this.style.transform = "scale(0.9)";
-        setTimeout(() => {
-            this.style.transform = "scale(1)";
-        }, 150);
-    });
 });

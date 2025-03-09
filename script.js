@@ -5,86 +5,97 @@ const platform = new H.service.Platform({
     apikey: "7kAhoWptjUW7A_sSWh3K2qaZ6Lzi4q3xaDRYwFWnCbE"
 });
 
-let userLatitude = null;
-let userLongitude = null;
+// متغيرات التطبيق
+let userLocation = null;
+const provinces = ["بغداد", "البصرة", /*...جميع المحافظات...*/];
 
-// تحديد الموقع
-document.getElementById("getLocation").addEventListener("click", () => {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                userLatitude = position.coords.latitude;
-                userLongitude = position.coords.longitude;
-                showMap(userLatitude, userLongitude);
-                alert("تم تحديد الموقع بنجاح! ✅");
-            },
-            (error) => alert("خطأ في الموقع: " + error.message)
-        );
-    } else {
-        alert("المتصفح لا يدعم GPS ❌");
-    }
-});
+// تحديث التاريخ
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ar-IQ');
 
-// عرض الخريطة
-function showMap(lat, lng) {
-    const mapContainer = document.getElementById('map');
-    const defaultLayers = platform.createDefaultLayers();
-    const map = new H.Map(mapContainer, defaultLayers.vector.normal.map, {
-        center: { lat, lng },
-        zoom: 14
-    });
-    new H.map.Marker({ lat, lng }).addTo(map);
-}
-
-// الوضع الداكن
+// إدارة الوضع الداكن
 document.getElementById("darkModeToggle").addEventListener("click", () => {
     document.body.classList.toggle("dark-mode");
     localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
 });
 
+// تحديد الموقع
+document.getElementById("getLocation").addEventListener("click", () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                initMap(userLocation.lat, userLocation.lng);
+            },
+            error => alert("خطأ في الموقع: " + error.message)
+        );
+    }
+});
+
+// عرض الخريطة
+function initMap(lat, lng) {
+    const mapContainer = document.getElementById('map');
+    const defaultLayers = platform.createDefaultLayers();
+    new H.Map(mapContainer, defaultLayers.vector.normal.map, {
+        center: { lat, lng },
+        zoom: 14
+    }).addObject(new H.map.Marker({ lat, lng }));
+}
+
 // إرسال الطلب
 document.getElementById("orderForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+    
+    const formData = {
+        name: document.getElementById("name").value,
+        phone: "+9647" + document.getElementById("phone").value,
+        governorate: document.getElementById("governorate").value,
+        cylinders: document.getElementById("cylinders").value,
+        ...userLocation
+    };
 
-    const provider = document.getElementById("provider").value;
-    const phone = "+964" + document.getElementById("phone").value;
-    const governorate = document.getElementById("governorate").value;
-    const cylinders = document.getElementById("cylinders").value;
-
-    if (provider && phone && governorate && cylinders && userLatitude && userLongitude) {
-        try {
-            // إضافة إلى Firebase
-            await addDoc(collection(db, "orders"), {
-                provider,
-                phone,
-                governorate,
-                cylinders,
-                latitude: userLatitude,
-                longitude: userLongitude,
-                status: "قيد الانتظار",
-                timestamp: new Date()
-            });
-
-            // عرض الملخص
-            document.getElementById("orderSummary").classList.remove("hidden");
-            document.getElementById("summaryContent").innerHTML = `
-                <p><strong>المزود:</strong> ${provider}</p>
-                <p><strong>الهاتف:</strong> ${phone}</p>
-                <p><strong>المحافظة:</strong> ${governorate}</p>
-                <p><strong>الكمية:</strong> ${cylinders} أسطوانة</p>
-                <div class="success-animation">
-                    <i class="fas fa-check-circle"></i>
-                    <p>تم استلام طلبك بنجاح! 🎉</p>
-                </div>
-            `;
-
-            // إعادة تعيين النموذج
-            document.getElementById("orderForm").reset();
-        } catch (error) {
-            console.error("فشل الإرسال:", error);
-            alert("حدث خطأ! الرجاء المحاولة لاحقًا ❌");
-        }
-    } else {
-        alert("الرجاء ملء جميع الحقول وتحديد الموقع! ⚠️");
+    if (validateForm(formData)) {
+        showConfirmation(formData);
     }
+});
+
+// التحقق من النموذج
+function validateForm(data) {
+    return data.phone.length === 13 && 
+           data.governorate && 
+           data.cylinders >= 1 && 
+           data.cylinders <= 10;
+}
+
+// عرض التأكيد
+function showConfirmation(data) {
+    const modal = document.getElementById("confirmationModal");
+    document.getElementById("modalBody").innerHTML = `
+        <p>الاسم: ${data.name}</p>
+        <p>الهاتف: ${data.phone}</p>
+        <p>المحافظة: ${data.governorate}</p>
+        <p>الكمية: ${data.cylinders}</p>
+    `;
+    modal.classList.remove("hidden");
+}
+
+// إدارة النافذة المنبثقة
+document.querySelector(".confirm-btn").addEventListener("click", async () => {
+    try {
+        await addDoc(collection(db, "orders"), {
+            ...formData,
+            status: "قيد الانتظار",
+            timestamp: new Date()
+        });
+        alert("تم الإرسال بنجاح 🎉");
+        location.reload();
+    } catch (error) {
+        console.error("Error:", error);
+    }
+});
+
+document.querySelector(".cancel-btn").addEventListener("click", () => {
+    document.getElementById("confirmationModal").classList.add("hidden");
 });

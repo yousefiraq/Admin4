@@ -1,101 +1,104 @@
+// script.js
 import { db, collection, addDoc } from "./firebase-config.js";
 
-// تهيئة الخرائط
-const platform = new H.service.Platform({
-    apikey: "7kAhoWptjUW7A_sSWh3K2qaZ6Lzi4q3xaDRYwFWnCbE"
+// تهيئة التاريخ
+const dateElement = document.getElementById('date');
+dateElement.textContent = new Date().toLocaleDateString('ar-IQ', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
 });
 
-// متغيرات التطبيق
-let userLocation = null;
-const provinces = ["بغداد", "البصرة", /*...جميع المحافظات...*/];
-
-// تحديث التاريخ
-document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ar-IQ');
-
-// إدارة الوضع الداكن
-document.getElementById("darkModeToggle").addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
-    localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+// تبديل الوضع الداكن
+document.getElementById('themeToggle').addEventListener('click', () => {
+    const body = document.body;
+    body.toggleAttribute('data-theme');
+    const icon = document.querySelector('#themeToggle i');
+    icon.classList.toggle('fa-moon');
+    icon.classList.toggle('fa-sun');
 });
 
-// تحديد الموقع
+// تحديد الموقع الجغرافي
+let userLatitude = null;
+let userLongitude = null;
+const platform = new H.service.Platform({ apikey: "7kAhoWptjUW7A_sSWh3K2qaZ6Lzi4q3xaDRYwFWnCbE" });
+
 document.getElementById("getLocation").addEventListener("click", () => {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            position => {
-                userLocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-                initMap(userLocation.lat, userLocation.lng);
+            (position) => {
+                userLatitude = position.coords.latitude;
+                userLongitude = position.coords.longitude;
+                showMap(userLatitude, userLongitude);
+                alert("تم تحديد الموقع بنجاح!");
             },
-            error => alert("خطأ في الموقع: " + error.message)
+            (error) => alert("خطأ في تحديد الموقع: " + error.message)
         );
+    } else {
+        alert("المتصفح لا يدعم تحديد الموقع.");
     }
 });
 
-// عرض الخريطة
-function initMap(lat, lng) {
+function showMap(lat, lng) {
     const mapContainer = document.getElementById('map');
     const defaultLayers = platform.createDefaultLayers();
-    new H.Map(mapContainer, defaultLayers.vector.normal.map, {
+    const map = new H.Map(mapContainer, defaultLayers.vector.normal.map, {
         center: { lat, lng },
         zoom: 14
-    }).addObject(new H.map.Marker({ lat, lng }));
+    });
+    new H.map.Marker({ lat, lng }).addTo(map);
 }
 
-// إرسال الطلب
-document.getElementById("orderForm").addEventListener("submit", async (e) => {
+// إدارة النافذة التأكيدية
+const modal = document.getElementById('confirmationModal');
+const confirmBtn = document.getElementById('confirmBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+
+document.getElementById("orderForm").addEventListener("submit", (e) => {
     e.preventDefault();
-    
     const formData = {
-        name: document.getElementById("name").value,
-        phone: "+9647" + document.getElementById("phone").value,
-        governorate: document.getElementById("governorate").value,
-        cylinders: document.getElementById("cylinders").value,
-        ...userLocation
+        name: document.getElementById('name').value,
+        phone: document.getElementById('phone').value,
+        province: document.getElementById('province').value,
+        cylinders: document.getElementById('cylinders').value,
+        location: userLatitude && userLongitude ? "✔️" : "❌"
     };
 
-    if (validateForm(formData)) {
-        showConfirmation(formData);
+    if (!/^07\d{9}$/.test(formData.phone)) {
+        alert("رقم الهاتف غير صحيح!");
+        return;
     }
+
+    document.getElementById('orderDetails').innerHTML = `
+        <p>الاسم: ${formData.name}</p>
+        <p>الهاتف: ${formData.phone}</p>
+        <p>المحافظة: ${formData.province}</p>
+        <p>عدد الأنابيب: ${formData.cylinders}</p>
+        <p>الموقع: ${formData.location}</p>
+    `;
+    modal.style.display = "block";
 });
 
-// التحقق من النموذج
-function validateForm(data) {
-    return data.phone.length === 13 && 
-           data.governorate && 
-           data.cylinders >= 1 && 
-           data.cylinders <= 10;
-}
-
-// عرض التأكيد
-function showConfirmation(data) {
-    const modal = document.getElementById("confirmationModal");
-    document.getElementById("modalBody").innerHTML = `
-        <p>الاسم: ${data.name}</p>
-        <p>الهاتف: ${data.phone}</p>
-        <p>المحافظة: ${data.governorate}</p>
-        <p>الكمية: ${data.cylinders}</p>
-    `;
-    modal.classList.remove("hidden");
-}
-
-// إدارة النافذة المنبثقة
-document.querySelector(".confirm-btn").addEventListener("click", async () => {
+confirmBtn.addEventListener('click', async () => {
     try {
         await addDoc(collection(db, "orders"), {
-            ...formData,
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            province: document.getElementById('province').value,
+            cylinders: document.getElementById('cylinders').value,
+            latitude: userLatitude,
+            longitude: userLongitude,
             status: "قيد الانتظار",
             timestamp: new Date()
         });
-        alert("تم الإرسال بنجاح 🎉");
-        location.reload();
+        alert("تم إرسال الطلب بنجاح!");
+        document.getElementById("orderForm").reset();
+        modal.style.display = "none";
     } catch (error) {
         console.error("Error:", error);
+        alert("حدث خطأ أثناء الإرسال!");
     }
 });
 
-document.querySelector(".cancel-btn").addEventListener("click", () => {
-    document.getElementById("confirmationModal").classList.add("hidden");
-});
+cancelBtn.addEventListener('click', () => modal.style.display = "none");
+window.onclick = (e) => e.target == modal && (modal.style.display = "none");

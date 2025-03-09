@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>طلب غاز</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- مكتبة Google Maps -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfSqvra5NesDDhHlkqcPAJlLIFh3sGIx0&callback=initMap" async defer></script>
+    <!-- مكتبات HERE Maps -->
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
 </head>
 <body>
     <div class="container">
@@ -15,14 +16,9 @@
             <input type="text" id="name" placeholder="الاسم" required>
             <input type="text" id="phone" placeholder="رقم الهاتف" required>
             <input type="text" id="address" placeholder="العنوان" required>
-            
-            <!-- زر تحديد الموقع وعناصر الخريطة -->
-            <button type="button" id="getLocation">📍 تحديد الموقع الحالي</button>
-            <div id="map" style="height: 300px; margin: 20px 0; display: none;"></div>
-            <input type="hidden" id="latitude">
-            <input type="hidden" id="longitude">
-            
-            <button type="submit">🚚 إرسال الطلب</button>
+            <button type="button" id="getLocation">تحديد الموقع</button>
+            <div id="map" style="height: 300px; margin: 20px 0;"></div>
+            <button type="submit">إرسال الطلب</button>
         </form>
     </div>
 

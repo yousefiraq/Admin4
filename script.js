@@ -1,4 +1,3 @@
-// script.js
 import { db, collection, addDoc } from "./firebase-config.js";
 
 // تهيئة التاريخ
@@ -18,11 +17,12 @@ document.getElementById('themeToggle').addEventListener('click', () => {
     icon.classList.toggle('fa-sun');
 });
 
-// تحديد الموقع الجغرافي
+// إعدادات الخريطة
 let userLatitude = null;
 let userLongitude = null;
 const platform = new H.service.Platform({ apikey: "7kAhoWptjUW7A_sSWh3K2qaZ6Lzi4q3xaDRYwFWnCbE" });
 
+// تحديد الموقع
 document.getElementById("getLocation").addEventListener("click", () => {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -49,43 +49,55 @@ function showMap(lat, lng) {
     new H.map.Marker({ lat, lng }).addTo(map);
 }
 
-// إدارة النافذة التأكيدية
+// التحقق من البيانات
+const validateForm = () => {
+    if (!userLatitude || !userLongitude) {
+        alert("الرجاء تحديد الموقع أولاً!");
+        return false;
+    }
+    if (!/^07\d{9}$/.test(document.getElementById('phone').value)) {
+        alert("رقم الهاتف غير صحيح!");
+        return false;
+    }
+    return true;
+};
+
+// نافذة التأكيد
 const modal = document.getElementById('confirmationModal');
 const confirmBtn = document.getElementById('confirmBtn');
 const cancelBtn = document.getElementById('cancelBtn');
 
 document.getElementById("orderForm").addEventListener("submit", (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     const formData = {
         name: document.getElementById('name').value,
         phone: document.getElementById('phone').value,
         province: document.getElementById('province').value,
         cylinders: document.getElementById('cylinders').value,
-        location: userLatitude && userLongitude ? "✔️" : "❌"
+        latitude: userLatitude,
+        longitude: userLongitude
     };
-
-    if (!/^07\d{9}$/.test(formData.phone)) {
-        alert("رقم الهاتف غير صحيح!");
-        return;
-    }
 
     document.getElementById('orderDetails').innerHTML = `
         <p>الاسم: ${formData.name}</p>
         <p>الهاتف: ${formData.phone}</p>
         <p>المحافظة: ${formData.province}</p>
         <p>عدد الأنابيب: ${formData.cylinders}</p>
-        <p>الموقع: ${formData.location}</p>
+        <p>الإحداثيات: ${formData.latitude.toFixed(4)}, ${formData.longitude.toFixed(4)}</p>
     `;
     modal.style.display = "block";
 });
 
+// إرسال البيانات إلى Firebase
 confirmBtn.addEventListener('click', async () => {
     try {
         await addDoc(collection(db, "orders"), {
-            name: document.getElementById('name').value,
-            phone: document.getElementById('phone').value,
-            province: document.getElementById('province').value,
-            cylinders: document.getElementById('cylinders').value,
+            name: document.getElementById('name').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            province: document.getElementById('province').value.trim(),
+            cylinders: document.getElementById('cylinders').value.trim(),
             latitude: userLatitude,
             longitude: userLongitude,
             status: "قيد الانتظار",
@@ -96,7 +108,7 @@ confirmBtn.addEventListener('click', async () => {
         modal.style.display = "none";
     } catch (error) {
         console.error("Error:", error);
-        alert("حدث خطأ أثناء الإرسال!");
+        alert("حدث خطأ أثناء الإرسال: " + error.message);
     }
 });
 

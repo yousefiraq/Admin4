@@ -1,73 +1,76 @@
 import { db, collection, addDoc } from "./firebase-config.js";
-import { GeoPoint } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// ---------- تحديد الموقع الجغرافي ----------
-document.getElementById("getLocation").addEventListener("click", function() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                
-                document.getElementById("latitude").value = lat;
-                document.getElementById("longitude").value = lng;
-                
-                const mapDiv = document.getElementById("map");
-                mapDiv.style.display = "block";
-                
-                // تهيئة الخريطة
-                const map = new google.maps.Map(mapDiv, {
-                    center: { lat, lng },
-                    zoom: 15,
-                    mapTypeId: 'hybrid'
-                });
-                
-                new google.maps.Marker({
-                    position: { lat, lng },
-                    map: map,
-                    title: "موقعك الحالي"
-                });
-            },
-            (error) => {
-                alert("❌ خطأ: " + error.message);
-            }
-        );
-    } else {
-        alert("⚠️ المتصفح لا يدعم تحديد الموقع!");
-    }
+// تهيئة HERE Maps
+const platform = new H.service.Platform({
+  apikey: "7kAhoWptjUW7A_sSWh3K2qaZ6Lzi4q3xaDRYwFWnCbE"
 });
 
-// ---------- إرسال الطلب إلى Firebase ----------
+let userLatitude = null;
+let userLongitude = null;
+
+// تحديد الموقع الجغرافي
+document.getElementById("getLocation").addEventListener("click", () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        userLatitude = position.coords.latitude;
+        userLongitude = position.coords.longitude;
+        showMap(userLatitude, userLongitude);
+        alert("تم تحديد الموقع بنجاح!");
+      },
+      (error) => {
+        alert("خطأ في تحديد الموقع: " + error.message);
+      }
+    );
+  } else {
+    alert("المتصفح لا يدعم تحديد الموقع.");
+  }
+});
+
+// عرض الخريطة
+function showMap(lat, lng) {
+  const mapContainer = document.getElementById('map');
+  const defaultLayers = platform.createDefaultLayers();
+  
+  const map = new H.Map(
+    mapContainer,
+    defaultLayers.vector.normal.map,
+    {
+      center: { lat: lat, lng: lng },
+      zoom: 14
+    }
+  );
+
+  // إضافة علامة للموقع
+  const marker = new H.map.Marker({ lat: lat, lng: lng });
+  map.addObject(marker);
+}
+
+// إرسال الطلب مع الموقع
 document.getElementById("orderForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const name = document.getElementById("name").value;
     const phone = document.getElementById("phone").value;
     const address = document.getElementById("address").value;
-    const latitude = document.getElementById("latitude").value;
-    const longitude = document.getElementById("longitude").value;
 
-    if (name && phone && address && latitude && longitude) {
+    if (name && phone && address && userLatitude && userLongitude) {
         try {
-            await addDoc(collection(db, "orders"), { 
-                name, 
-                phone, 
-                address, 
-                location: new GeoPoint(
-                    parseFloat(latitude),
-                    parseFloat(longitude)
-                ),
+            await addDoc(collection(db, "orders"), {
+                name,
+                phone,
+                address,
+                latitude: userLatitude,
+                longitude: userLongitude,
                 status: "قيد الانتظار",
-                timestamp: new Date() 
+                timestamp: new Date()
             });
-            alert("✅ تم إرسال الطلب بنجاح!");
+            alert("تم إرسال الطلب بنجاح!");
             document.getElementById("orderForm").reset();
-            document.getElementById("map").style.display = "none";
         } catch (error) {
-            console.error("⛔ خطأ في الإرسال:", error);
-            alert("⛔ فشل في إرسال الطلب: " + error.message); // عرض رسالة الخطأ
+            console.error("خطأ في إرسال الطلب: ", error);
         }
     } else {
-        alert("⚠️ يرجى ملء جميع الحقول وتحديد الموقع!");
+        alert("يرجى ملء جميع الحقول وتحديد الموقع!");
     }
 });

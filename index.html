@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طلب غاز - العراق</title>
+    <title>طلب أسطوانات غاز - العراق</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
@@ -11,66 +11,70 @@
 </head>
 <body>
     <header class="header">
-        <img src="https://i.imgur.com/KpQqytJ.jpeg" class="iraq-emblem" alt="شعار العراق">
-        <h1>خدمة توصيل أسطوانات الغاز الوطني</h1>
-        <button id="darkModeToggle" class="glow-btn">🌓 تبديل الوضع</button>
+        <div class="header-top">
+            <span id="currentDate"></span>
+            <button id="darkModeToggle" class="dark-mode-btn">🌙 وضع الليل</button>
+        </div>
+        <img src="https://i.imgur.com/KpQqytJ.jpeg" class="iraq-logo" alt="شعار العراق">
+        <h1>خدمة توصيل الغاز الوطني</h1>
     </header>
 
     <div class="container">
-        <div class="order-card">
-            <h2 class="section-title"><i class="fas fa-fire"></i> تعبئة نموذج الطلب</h2>
-            <form id="orderForm">
-                <!-- مزود الخدمة -->
-                <div class="input-group">
-                    <label>مزود الاتصالات:</label>
-                    <select id="provider" class="styled-select">
-                        <option value="كورك">كورك (+964)</option>
-                        <option value="آسيا سيل">آسيا سيل (+964)</option>
-                        <option value="أثير عراقنا">أثير عراقنا (+964)</option>
-                    </select>
-                </div>
+        <form id="orderForm" class="form-container">
+            <!-- حقل الاسم -->
+            <div class="input-group">
+                <label for="name">الاسم الكامل:</label>
+                <input type="text" id="name" placeholder="أحمد محمد" required>
+            </div>
 
-                <!-- رقم الهاتف -->
-                <div class="input-group">
-                    <label>رقم الهاتف:</label>
-                    <input type="tel" id="phone" pattern="[0-9]{10}" placeholder="7XXXXXXXXX" required>
+            <!-- حقل الهاتف -->
+            <div class="input-group">
+                <label for="phone">رقم الهاتف:</label>
+                <div class="phone-input">
+                    <span class="prefix">+964 7</span>
+                    <input type="tel" id="phone" pattern="[0-9]{9}" maxlength="9" 
+                           placeholder="123456789" required>
                 </div>
+            </div>
 
-                <!-- المحافظة -->
-                <div class="input-group">
-                    <label>المحافظة:</label>
-                    <select id="governorate" class="styled-select">
-                        <option value="بغداد">بغداد</option>
-                        <option value="البصرة">البصرة</option>
-                        <option value="أربيل">أربيل</option>
-                        <!-- ... (جميع المحافظات) ... -->
-                    </select>
-                </div>
+            <!-- حقل المحافظة -->
+            <div class="input-group">
+                <label for="governorate">المحافظة:</label>
+                <select id="governorate" required>
+                    <option value="">اختر المحافظة</option>
+                    <option value="بغداد">بغداد</option>
+                    <option value="البصرة">البصرة</option>
+                    <!-- جميع المحافظات الـ 18 -->
+                </select>
+            </div>
 
-                <!-- عدد الأسطوانات -->
-                <div class="input-group">
-                    <label>عدد الأسطوانات:</label>
-                    <input type="number" id="cylinders" min="1" max="10" value="1" required>
-                </div>
+            <!-- حقل الكمية -->
+            <div class="input-group">
+                <label for="cylinders">عدد الأسطوانات:</label>
+                <input type="number" id="cylinders" min="1" max="10" value="1" required>
+            </div>
 
-                <!-- تحديد الموقع -->
-                <div class="input-group">
-                    <button type="button" id="getLocation" class="map-btn">
-                        📍 تحديد الموقع على الخريطة
-                    </button>
-                    <div id="map" style="height: 250px; margin-top: 15px;"></div>
-                </div>
-
-                <button type="submit" class="submit-btn">
-                    <i class="fas fa-paper-plane"></i> إرسال الطلب
+            <!-- تحديد الموقع -->
+            <div class="input-group">
+                <button type="button" id="getLocation" class="location-btn">
+                    📍 تحديد الموقع على الخريطة
                 </button>
-            </form>
-        </div>
+                <div id="map" class="map-container"></div>
+            </div>
 
-        <!-- ملخص الطلب -->
-        <div id="orderSummary" class="summary-card hidden">
-            <h2 class="section-title"><i class="fas fa-receipt"></i> ملخص طلبك</h2>
-            <div id="summaryContent"></div>
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-paper-plane"></i> تأكيد الطلب
+            </button>
+        </form>
+
+        <!-- نافذة التأكيد -->
+        <div id="confirmationModal" class="modal hidden">
+            <div class="modal-content">
+                <h3>تفاصيل طلبك:</h3>
+                <div id="modalBody"></div>
+                <button class="confirm-btn">تأكيد الإرسال</button>
+                <button class="cancel-btn">إلغاء</button>
+            </div>
         </div>
     </div>
 

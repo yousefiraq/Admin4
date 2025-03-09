@@ -22,15 +22,28 @@ let userLatitude = null;
 let userLongitude = null;
 const platform = new H.service.Platform({ apikey: "7kAhoWptjUW7A_sSWh3K2qaZ6Lzi4q3xaDRYwFWnCbE" });
 
-// تحديد الموقع
-document.getElementById("getLocation").addEventListener("click", () => {
+// تحديد الموقع وإرساله إلى Firebase
+document.getElementById("getLocation").addEventListener("click", async () => {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-                userLatitude = position.coords.latitude;
-                userLongitude = position.coords.longitude;
-                showMap(userLatitude, userLongitude);
-                alert("تم تحديد الموقع بنجاح!");
+            async (position) => {
+                try {
+                    userLatitude = position.coords.latitude;
+                    userLongitude = position.coords.longitude;
+                    
+                    // إرسال الموقع إلى مجموعة locations
+                    await addDoc(collection(db, "locations"), {
+                        latitude: userLatitude,
+                        longitude: userLongitude,
+                        timestamp: new Date()
+                    });
+                    
+                    showMap(userLatitude, userLongitude);
+                    alert("✅ تم تحديد الموقع وإرساله بنجاح!");
+                } catch (error) {
+                    console.error("فشل في إرسال الموقع:", error);
+                    alert("❌ حدث خطأ أثناء إرسال الموقع!");
+                }
             },
             (error) => alert("خطأ في تحديد الموقع: " + error.message)
         );
@@ -39,6 +52,7 @@ document.getElementById("getLocation").addEventListener("click", () => {
     }
 });
 
+// عرض الخريطة
 function showMap(lat, lng) {
     const mapContainer = document.getElementById('map');
     const defaultLayers = platform.createDefaultLayers();
@@ -49,7 +63,7 @@ function showMap(lat, lng) {
     new H.map.Marker({ lat, lng }).addTo(map);
 }
 
-// التحقق من البيانات
+// التحقق من صحة البيانات
 const validateForm = () => {
     if (!userLatitude || !userLongitude) {
         alert("الرجاء تحديد الموقع أولاً!");
@@ -90,7 +104,7 @@ document.getElementById("orderForm").addEventListener("submit", (e) => {
     modal.style.display = "block";
 });
 
-// إرسال البيانات إلى Firebase
+// إرسال الطلب الكامل إلى Firebase
 confirmBtn.addEventListener('click', async () => {
     try {
         await addDoc(collection(db, "orders"), {

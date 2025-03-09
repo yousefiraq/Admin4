@@ -1,38 +1,121 @@
+:root {
+    --primary: #ce1126;
+    --secondary: #007bff;
+    --background: #f8f9fa;
+    --text: #333;
+    --dark-bg: #1a1a1a;
+    --dark-text: #fff;
+}
+
+/* التصميم العام */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Tajawal', sans-serif;
+    background: var(--background);
+    color: var(--text);
+    transition: 0.3s;
+}
+
+body.dark-mode {
+    background: var(--dark-bg);
+    color: var(--dark-text);
+}
+
+.header {
     text-align: center;
-    background-color: #f8f9fa;
+    padding: 2rem;
+    background: linear-gradient(45deg, var(--primary), #8b0000);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.iraq-emblem {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid gold;
+    margin-bottom: 1rem;
+    transition: 0.5s;
+}
+
+.iraq-emblem:hover {
+    transform: rotate(360deg);
 }
 
 .container {
-    width: 50%;
-    margin: 50px auto;
-    background: white;
+    max-width: 800px;
+    margin: 2rem auto;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-input, button {
-    width: 90%;
-    padding: 10px;
-    margin: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+/* بطاقة الطلب */
+.order-card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    backdrop-filter: blur(10px);
 }
 
-button {
-    background-color: #28a745;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
+body.dark-mode .order-card {
+    background: rgba(40,40,40,0.95);
 }
 
-button:hover {
-    background-color: #218838;
+.input-group {
+    margin-bottom: 1.5rem;
 }
 
-#map {
-    border: 2px solid #ddd;
+.styled-select, input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--primary);
     border-radius: 8px;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.styled-select:focus, input:focus {
+    border-color: var(--secondary);
+    box-shadow: 0 0 10px rgba(0,123,255,0.3);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(45deg, var(--primary), #a30000);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(206,17,38,0.4);
+}
+
+/* ملخص الطلب */
+.summary-card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-top: 2rem;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.success-animation {
+    text-align: center;
+    color: var(--primary);
+    margin-top: 1rem;
+}
+
+.success-animation i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
 }
